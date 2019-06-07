@@ -2,7 +2,41 @@
 <head>
 	<script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
 	<script>
-        function get_inner_radius(radius, sidelength)
+        let RegularTile = class
+		{
+  		constructor(name, color, number_of_sides, desired_angle, neighbors)
+			{
+    		this.name = name;
+    		this.color = color;
+    		this.number_of_sides = number_of_sides;
+    		this.angle = desired_angle;
+    		this.neighbors = neighbors;
+  			}
+
+		generate_shape_values(coords, sidelength, number_of_sides_current, first_shape = false)
+		{
+		    <!-- Takes an origin, a direction, the sidelength. Returns the xy coordinates and radius of the new polygon -->
+
+		    var old_radii = get_shape_radii(sidelength, number_of_sides_current);
+			var shape_angle;
+
+		    <!-- Use the inner radii of both shapes to calculate the vector for where the new shape will lie, then add it to existing coords  -->
+			if (!first_shape)
+			{
+			    var new_radii = get_shape_radii(sidelength, this.number_of_sides);
+			    var new_coords = add_directional_vector(coords, this.angle, old_radii[0]+new_radii[0]);
+			    shape_angle = get_modified_shape_angle(this.angle, this.number_of_sides);
+				return {"x":new_coords[0], "y":new_coords[1], "radius":new_radii[1], "angle":shape_angle};
+			}
+			else
+			{
+			    shape_angle = get_modified_shape_angle(this.angle, number_of_sides_current);
+			    return {"x":coords[0], "y":coords[1],"radius":old_radii[1], "angle":shape_angle};
+			}
+		}
+		};
+
+		function get_inner_radius(radius, sidelength)
         {
             return Math.sqrt((radius * radius) - (sidelength * sidelength / 4))
         }
@@ -49,50 +83,39 @@
             return [coords[0] + vector[0], coords[1] + vector[1]]
         }
 
-        function get_new_shape_values(coords, direction, sidelength, number_of_sides_current, number_of_sides_new, first_shape = false)
-		{
-		    <!-- Takes an origin, a direction, the sidelength, and number of sides of the current and new regular polygons. Returns the xy coordinates and radius of the new polygon -->
-
-		    var old_radii = get_shape_radii(sidelength, number_of_sides_current);
-			var shape_angle;
-
-		    <!-- Use the inner radii of both shapes to calculate the vector for where the new shape will lie, then add it to existing coords  -->
-			if (!first_shape)
-			{
-			    var new_radii = get_shape_radii(sidelength, number_of_sides_new);
-			    var new_coords = add_directional_vector(coords, direction, old_radii[0]+new_radii[0]);
-			    shape_angle = get_modified_shape_angle(direction, number_of_sides_new);
-				return [new_coords[0], new_coords[1], new_radii[1], number_of_sides_new, shape_angle]
-			}
-			else
-			{
-			    shape_angle = get_modified_shape_angle(direction, number_of_sides_current);
-			    return [coords[0], coords[1], old_radii[1], number_of_sides_current, shape_angle]
-			}
-		}
-
-		function get_modified_shape_angle(direction, number_of_sides)
+        function get_modified_shape_angle(direction, number_of_sides)
 		{
 		    <!-- Gives an angular offset value for drawing polygons. Even numbered shapes have an offset while odd doesn't  -->
 		    return direction + ((number_of_sides % 2) == 0 ? (360 / (number_of_sides * 2)) : 0)
 		}
 
-		function create_shapes(canvas, starting_coords, sidelength, shape_data)
+		function create_canvas_shapes(canvas, starting_coords, sidelength, shapes)
 		{
-		    <!-- Shape_data = [[shape1.direction, shape1.number_of_sides, shape1.color],....]-->
-			if (shape_data.length > 0)
+		    /* Generates shapes from a list and adds them to canvas */
+			var current_number_of_sides;
+			if (shapes.length > 0)
 			{
-                var data = get_new_shape_values(starting_coords, shape_data[0][0], sidelength, shape_data[0][1], 0, true)
-                polygon = new createjs.Shape();
-                polygon.graphics.beginFill(shape_data[0][2]).drawPolyStar(data[0], data[1], data[2], data[3], 0, data[4]);
+			    var current_number_of_sides = shapes[0].number_of_sides;
+
+				/* Generate values of first shape in the sequence */
+			    var polygon_values = shapes[0].generate_shape_values(starting_coords, sidelength, current_number_of_sides, true);
+
+				polygon = new createjs.Shape();
+			    polygon.graphics.beginFill(shapes[0].color).drawPolyStar(polygon_values["x"], polygon_values["y"], polygon_values["radius"], shapes[0].number_of_sides, 0, polygon_values["angle"]);
                 canvas.addChild(polygon);
 
-                for (var i = 1; i < shape_data.length; i++)
+                current_coordinates = [polygon_values["x"],polygon_values["y"]];
+
+                for (var i = 1; i < shapes.length; i++)
 				{
-				    data = get_new_shape_values([data[0], data[1]], shape_data[i][0], sidelength, data[3] ,shape_data[i][1], false)
-				    polygon = new createjs.Shape();
-					polygon.graphics.beginFill(shape_data[i][2]).drawPolyStar(data[0], data[1], data[2], data[3], 0, data[4]);
+				    /* Feed latest coordinates and number of sides back into function*/
+				    polygon_values = shapes[i].generate_shape_values([polygon_values["x"],polygon_values["y"]], sidelength, current_number_of_sides, false);
+				    current_number_of_sides = shapes[i].number_of_sides;
+
+					polygon = new createjs.Shape();
+					polygon.graphics.beginFill(shapes[i].color).drawPolyStar(polygon_values["x"], polygon_values["y"], polygon_values["radius"], shapes[i].number_of_sides, 0, polygon_values["angle"]);
 					canvas.addChild(polygon);
+
 				}
 
 				canvas.update();
@@ -101,22 +124,44 @@
 
 		function init()
 		{
-            var sidelength = 20;
+            var sidelength = 10;
 			var stage = new createjs.Stage("demoCanvas");
 
-			shape_data = [
-			    [0,3,"green"],
-				[60,6,"blue"],
-				[0,6,"purple"],
-				[60,6,"orange"],
-			];
+			shape_data_1 = [
+			    new RegularTile("A", "blue", 4, 0, []),
+				new RegularTile("B", "green", 4, 0, []),
+				new RegularTile("C", "red", 4, 0, []),
+				new RegularTile("D", "blue", 4, 0, []),
+				new RegularTile("E", "green", 4, 0, []),
+				new RegularTile("F", "red", 4, 0, []),
+				new RegularTile("G", "blue", 4, 90, []),
+			]
 
-			create_shapes(stage,[60,60], sidelength, shape_data);
+			chunk_height = 95;
+			chunk_vertical_count = 1;
+			chunk_width = 55;
+			chunk_horizontal_count = 1;
+
+			var x = 60;
+			var y = 60;
+
+			for(var i = 0; i < chunk_vertical_count; i++)
+			{
+			    for(var j = 0; j < chunk_horizontal_count; j++)
+				{
+				    create_canvas_shapes(stage,[x,y], sidelength, shape_data_1);
+				    x += chunk_width;
+				}
+				y += chunk_height;
+			    x = 60;
+			}
+
+
 		}
 	</script>
 </head>
 <body onload="init();">
-	<canvas id="demoCanvas" width="500" height="200">
+	<canvas id="demoCanvas" width="1000" height="1000">
 		alternate content
 	</canvas>
 
