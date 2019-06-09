@@ -90,13 +90,15 @@
 		    return direction + ((number_of_sides % 2) == 0 ? (360 / (number_of_sides * 2)) : 0)
 		}
 
-		function generate_initial_chunk_data(sidelength, shapes)
+		function generate_initial_chunk_data(sidelength, shapes, origin_tile, horizontal_tile, vertical_tile)
 		{
 		    var chunk_data = {};
 
-		    /* Generates shapes from a list and adds them to canvas */
+		    /* Generates all data needed to render a chunk
+		     * Removes horizontal and vertical tiles as they are only meant to be temporary to calculate chunk's dimensions */
+
 			var current_number_of_sides;
-			if (shapes.length > 0)
+			if (shapes.length > 2)
 			{
 			    var current_number_of_sides = shapes[0].number_of_sides;
 
@@ -104,34 +106,62 @@
 			    var polygon_values = shapes[0].generate_shape_values([0,0], sidelength, current_number_of_sides, true);
 
 			    /* add rendering data to chunk */
-			    chunk_data[shapes[0].name] = polygon_values;
+				chunk_data["tiles"] = {};
+			    chunk_data["tiles"][shapes[0].name] = polygon_values;
 
                 for (var i = 1; i < shapes.length; i++)
 				{
 				    /* Feed coordinates and number of sides of the parent of current shape back into function*/
 					var parent = shapes[i].parent;
 
-					var coords = [chunk_data[parent]["x"]	, chunk_data[parent]["y"]]
-					current_number_of_sides = chunk_data[parent]["sides"];
+					var coords = [chunk_data["tiles"][parent]["x"]	, chunk_data["tiles"][parent]["y"]]
+					current_number_of_sides = chunk_data["tiles"][parent]["sides"];
 
 				    polygon_values = shapes[i].generate_shape_values(coords, sidelength, current_number_of_sides, false);
 
 				    /* add rendering data to chunk */
-				    chunk_data[shapes[i].name] = polygon_values;
+				    chunk_data["tiles"][shapes[i].name] = polygon_values;
 				}
 
-			return chunk_data;
+				var chunk_width = chunk_data["tiles"][horizontal_tile]["x"] - chunk_data["tiles"][origin_tile]["x"];
+                var chunk_height = chunk_data["tiles"][vertical_tile]["y"] - chunk_data["tiles"][origin_tile]["y"];
+
+                chunk_data["chunk_width"] = chunk_width;
+                chunk_data["chunk_height"] = chunk_height;
+
+				delete chunk_data["tiles"][horizontal_tile];
+				delete chunk_data["tiles"][vertical_tile];
 			}
+			else
+			{
+			    alert("At least 3 tiles required for chunk calculations")
+			}
+			return chunk_data;
 		}
 
-		function render_chunk(xoffset, yoffset, canvas, chunk_data)
+		function render_chunks(xoffset, yoffset, chunk_horizontal_count, chunk_vertical_count, canvas, chunk_data, chunk_seperation_distance = 0)
 		{
-		for (var [name, shape] of Object.entries(chunk_data))
+		    /* Renders chunks to the canvas */
+			var x = xoffset;
+			var y = yoffset;
+
+			for(var i = 0; i < chunk_vertical_count; i++)
 			{
-			    polygon = new createjs.Shape();
-				polygon.graphics.beginFill(shape["color"]).drawPolyStar(shape["x"]+xoffset, shape["y"]+yoffset, shape["radius"], shape["sides"], 0, shape["angle"]);
-				canvas.addChild(polygon);
+			    for(var j = 0; j < chunk_horizontal_count; j++)
+				{
+				    /* Render all the tiles in a single chunk */
+				    for (var [name, shape_data] of Object.entries(chunk_data["tiles"]))
+					{
+						polygon = new createjs.Shape();
+						polygon.graphics.beginFill(shape_data["color"]).drawPolyStar(shape_data["x"]+x, shape_data["y"]+y, shape_data["radius"], shape_data["sides"], 0, shape_data["angle"]);
+						canvas.addChild(polygon);
+					}
+				    x += chunk_data["chunk_width"] + chunk_seperation_distance;
+				}
+				y += chunk_data["chunk_height"] + chunk_seperation_distance;
+			    x = xoffset;
 			}
+
 		    canvas.update()
 		}
 
@@ -143,34 +173,29 @@
 			/* shape("name","color",sides, angle, neighbors=[]) */
 			shape_data = [
 			    new RegularTile("A",null, "blue", 6, 0, []),
-				new RegularTile("B","A", "green", 4, 0, []),
-				new RegularTile("C","B", "red", 6, 0, []),
-				new RegularTile("D","C", "blue", 4, 0, []),
-				new RegularTile("E","C", "green", 4, 240, []),
-				new RegularTile("F","E", "red", 4, 240, []),
-				new RegularTile("G","B", "blue", 4, 90, []),
+				new RegularTile("B","A", "orange", 4, 180, []),
+				new RegularTile("C","B", "red", 3, 90, []),
+				new RegularTile("D","C", "orange", 4, 30, []),
+				new RegularTile("E","D", "red", 3, 30, []),
+				new RegularTile("F","A", "orange", 4, 60, []),
+				new RegularTile("G","F", "blue", 6, 60, []),
+				new RegularTile("H","G", "orange", 4, 180, []),
+				new RegularTile("I","H", "red", 3, 90, []),
+				new RegularTile("J","I", "orange", 4, 30, []),
+				new RegularTile("K","J", "red", 3, 30, []),
+				new RegularTile("L","G", "orange", 4, 60, []),
+
+				new RegularTile("M","L", "blue", 6, 60, []),
+				new RegularTile("N","J", "blue", 6, 120, []),
 			];
 
-			chunk_data = generate_initial_chunk_data(sidelength, shape_data);
+			chunk_data = generate_initial_chunk_data(sidelength, shape_data, "A", "M", "N");
 
-			chunk_height = 95;
-			chunk_vertical_count = 1;
-			chunk_width = 55;
-			chunk_horizontal_count = 1;
+			chunk_vertical_count = 4;
+			chunk_horizontal_count = 8;
 
-			var x = 60;
-			var y = 60;
+			render_chunks(30,30,chunk_horizontal_count, chunk_vertical_count, stage, chunk_data, 0);
 
-			for(var i = 0; i < chunk_vertical_count; i++)
-			{
-			    for(var j = 0; j < chunk_horizontal_count; j++)
-				{
-				    render_chunk(x,y,stage, chunk_data);
-				    x += chunk_width;
-				}
-				y += chunk_height;
-			    x = 60;
-			}
 
 
 		}

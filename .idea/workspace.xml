@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8d3f6083-74f1-451b-8823-0a9f361c9d2a" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tilings.html" beforeDir="false" afterPath="$PROJECT_DIR$/Tilings.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -33,8 +34,8 @@
       <file leaf-file-name="Tilings.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Tilings.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="135" column="9" lean-forward="true" selection-start-line="135" selection-start-column="9" selection-end-line="135" selection-end-column="9" />
+            <state relative-caret-position="424">
+              <caret line="196" column="98" selection-start-line="196" selection-start-column="98" selection-end-line="196" selection-end-column="98" />
             </state>
           </provider>
         </entry>
@@ -68,10 +69,10 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-2" />
-    <option name="y" value="168" />
-    <option name="width" value="1766" />
-    <option name="height" value="883" />
+    <option name="x" value="188" />
+    <option name="y" value="112" />
+    <option name="width" value="1705" />
+    <option name="height" value="884" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -141,7 +142,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="168" width="1766" height="883" extended-state="0" />
+    <frame x="188" y="112" width="1705" height="884" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
@@ -150,7 +152,7 @@
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12368113" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.07294833" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3295362" />
       <window_info anchor="right" id="SciView" order="3" />
@@ -173,6 +175,20 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Tilings.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2601">
+          <caret line="153" column="37" lean-forward="true" selection-start-line="153" selection-start-column="37" selection-end-line="153" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Tilings.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2295">
+          <caret line="135" column="9" lean-forward="true" selection-start-line="135" selection-start-column="9" selection-end-line="135" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Tilings.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1530">
@@ -238,8 +254,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Tilings.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="135" column="9" lean-forward="true" selection-start-line="135" selection-start-column="9" selection-end-line="135" selection-end-column="9" />
+        <state relative-caret-position="424">
+          <caret line="196" column="98" selection-start-line="196" selection-start-column="98" selection-end-line="196" selection-end-column="98" />
         </state>
       </provider>
     </entry>
