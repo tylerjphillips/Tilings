@@ -7,12 +7,8 @@
 <body onload="init();">
 	<button id="generate">GENERATE GRID</button>
 
-	<script>
-		var btn = document.getElementById("generate");
-		btn.onclick = function() {input_to_chunk_generation()};
-	</script>
-
-
+	<button id="squaregrid">Checkerboard</button>
+	<button id="hexgrid">Hex Grid</button>
 
 	<textarea id="shape_input" rows="10" cols="60">
 Press the buttons to make the data for premade grids. Edit the data to make your own grids. Press generate afterwards.
@@ -33,8 +29,28 @@ Note: you'll have to specify at least 3 shapes or it won't work, as two are cull
 Chunk rendering data will be output here. Copy and paste and use it for your own grids
 	</textarea>
 
+	<script>
+		var btn = document.getElementById("generate");
+		btn.onclick = function() {input_to_chunk_generation()};
+	</script>
 
-	<button id="hexgrid">Hex Grid</button>
+	<script>
+		var btn = document.getElementById("squaregrid");
+		var txtarea = document.getElementById("shape_input");
+		btn.onclick = function()
+		{
+		    var shapes = [
+		        ["A",null,"blue",4,0],
+				["B","A","purple",4,0],
+				["C","A","orange",4,90],
+				["D","B","green",4,90],
+				["E","B","orange",4,0],
+				["F","C","orange",4,90]
+			];
+			txtarea.value = JSON.stringify(shapes);
+		}
+	</script>
+
 	<script>
 		var btn = document.getElementById("hexgrid");
 		var txtarea = document.getElementById("shape_input");
@@ -43,8 +59,8 @@ Chunk rendering data will be output here. Copy and paste and use it for your own
 		    var shapes = [
 			["A",null, "blue", 6, 0],
 			["B","A", "orange", 6, 60],
-			["C","B","orange",6,120],
-			["D","B","orange",6,60]
+			["C","B","orange",6,60],
+			["D","B","orange",6,120]
     		];
 			txtarea.value = JSON.stringify(shapes);
 		}

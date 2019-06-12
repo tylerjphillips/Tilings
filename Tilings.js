@@ -221,8 +221,8 @@ function input_to_chunk_generation()
     }
 
     var origin_shape = shape_input[0][0];
-    var horizontal_shape = shape_input[shape_input.length - 1][0];
-    var vertical_shape = shape_input[shape_input.length - 2][0];
+    var horizontal_shape = shape_input[shape_input.length - 2][0];
+    var vertical_shape = shape_input[shape_input.length - 1][0];
 
     var chunk_data = generate_initial_chunk_data(20, shape_data, origin_shape, horizontal_shape, vertical_shape);
 
