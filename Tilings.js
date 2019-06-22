@@ -12,23 +12,30 @@ let RegularTile = class
 
     generate_shape_values(coords, sidelength, number_of_sides_current, first_shape = false)
     {
-        <!-- Takes an origin, a direction, the sidelength. Returns the xy coordinates and radius of the new polygon -->
+        /*
+        Used for generating shape rendering data, usually by placing the new shape relative to an old one
+        Returns dictionary for all data of the polygon you wish to create
+        */
 
-        var old_radii = get_shape_radii(sidelength, number_of_sides_current);
+
+        var old_radii = get_shape_radii(sidelength, number_of_sides_current);   //radius of the shape you're using relative to new one
         var shape_angle;
 
-        <!-- Use the inner radii of both shapes to calculate the vector for where the new shape will lie, then add it to existing coords  -->
+        /* Use the inner radii of both shapes to calculate the vector for where the new shape will lie, then add it to existing coords  */
         if (!first_shape)
         {
+            // if not the first shape in the sequence, calculate position and size using the data from the old shape
+            // The number of sides for both shapes affects the radius, which affects the position as well
             var new_radii = get_shape_radii(sidelength, this.number_of_sides);
             var new_coords = add_directional_vector(coords, this.angle, old_radii[0]+new_radii[0]);
             shape_angle = get_modified_shape_angle(this.angle, this.number_of_sides);
-            return {"x":new_coords[0], "y":new_coords[1], "radius":new_radii[1], "angle":shape_angle, "sides":this.number_of_sides, "color":this.color};
+            return {"x":new_coords[0], "y":new_coords[1], "inner_radius":new_radii[0], "radius":new_radii[1], "angle":shape_angle, "sides":this.number_of_sides, "color":this.color};
         }
         else
         {
+            // if the first shape in the sequence, the calculations are simpler
             shape_angle = get_modified_shape_angle(this.angle, number_of_sides_current);
-            return {"x":coords[0], "y":coords[1],"radius":old_radii[1], "angle":shape_angle, "sides":this.number_of_sides, "color":this.color};
+            return {"x":coords[0], "y":coords[1],"inner_radius":old_radii[0],"radius":old_radii[1], "angle":shape_angle, "sides":this.number_of_sides, "color":this.color};
         }
     }
 
@@ -67,8 +74,8 @@ function get_shape_radii(sidelength, number_of_sides)
 function polar_to_cartesian(direction, magnitude) {
     /* creates an x,y vector given a direction(degrees) and a magnitude */
     var dir = direction
-    var x = magnitude * Math.cos((dir / 360) * 2 * Math.PI)
-    var y = magnitude * Math.sin((dir / 360) * 2 * Math.PI)
+    var x = magnitude * Math.cos((dir / 180) * Math.PI)
+    var y = magnitude * Math.sin((dir / 180) * Math.PI)
     return [x, y]
 }
 
@@ -92,7 +99,7 @@ function add_directional_vector(coords, direction, magnitude)
 
 function get_modified_shape_angle(direction, number_of_sides)
 {
-    <!-- Gives an angular offset value for drawing polygons. Even numbered shapes have an offset while odd doesn't  -->
+    /* Gives an angular offset value for drawing polygons. Even sided shapes have an offset while odd doesn't */
     return direction + ((number_of_sides % 2) == 0 ? (360 / (number_of_sides * 2)) : 0)
 }
 
@@ -171,10 +178,124 @@ function render_chunks(xoffset, yoffset, chunk_horizontal_count, chunk_vertical_
     canvas.update()
 }
 
-function string_to_shape_data(input_string)
+
+
+function input_to_chunk_generation()
 {
+    /*
+    Used for generate button
+    Convert the input text into chunk data, render it on the canvas, and write shape data to the output text area
+    */
+    var shape_input = JSON.parse(document.getElementById("shape_input").value);
     var shape_data = [];
-    return
+
+    // Add all the data to tile objects
+    for(var i = 0; i < shape_input.length; i++)
+    {
+        var shape = shape_input[i];
+        shape_data.push(new RegularTile(shape[0],shape[1],shape[2],shape[3],shape[4]))
+    }
+
+    var origin_shape = shape_input[0][0];
+    // shapes used for calculating the width and height of the chunk using the origin shape
+    var horizontal_shape = shape_input[shape_input.length - 2][0];
+    var vertical_shape = shape_input[shape_input.length - 1][0];
+
+    var chunk_data = generate_initial_chunk_data(20, shape_data, origin_shape, horizontal_shape, vertical_shape);
+
+    //show the chunk data in the text area
+    document.getElementById("chunk_data").value = JSON.stringify(chunk_data, null, 4);
+
+    var stage = new createjs.Stage("demoCanvas");
+
+    render_chunks(60,60, 5, 3, stage, chunk_data, 0);
+}
+
+function addButtonEvents() {
+    /* GENERATE BUTTON */
+    var btn = document.getElementById("generate");
+    btn.onclick = function () {
+        input_to_chunk_generation()
+    };
+
+    /* Checkerboard button */
+    btn = document.getElementById("squaregrid");
+    var txtarea = document.getElementById("shape_input");
+    btn.onclick = function () {
+        var shapes = [
+            ["A", null, "blue", 4, 0],
+            ["B", "A", "purple", 4, 0],
+            ["C", "A", "orange", 4, 90],
+            ["D", "B", "green", 4, 90],
+            ["E", "B", "orange", 4, 0],
+            ["F", "C", "orange", 4, 90]
+        ];
+        txtarea.value = JSON.stringify(shapes);
+    }
+
+    /* Triangle button */
+    btn = document.getElementById("triangles");
+    var txtarea = document.getElementById("shape_input");
+    btn.onclick = function () {
+        var shapes = [
+            ["A",null,"blue",3,90],
+            ["B","A","purple",3,30],
+            ["C","B","orange",3,90],
+            ["D","C","green",3,150],
+            ["E","C","orange",3,30],
+            ["F","D","orange",3,90]
+        ];
+        txtarea.value = JSON.stringify(shapes);
+    }
+
+    /* Hex grid button */
+    btn = document.getElementById("hexgrid");
+    btn.onclick = function () {
+        var shapes = [
+            ["A", null, "blue", 6, 0],
+            ["B", "A", "orange", 6, 60],
+            ["C", "B", "orange", 6, 60],
+            ["D", "B", "orange", 6, 120]
+        ];
+        txtarea.value = JSON.stringify(shapes);
+    }
+
+    /* Bordered hex grid button */
+    btn = document.getElementById("hexgridbordered");
+    btn.onclick = function () {
+        var shapes = [
+            ["A", null, "blue", 6, 0],
+            ["B", "A", "orange", 4, 180],
+            ["C", "B", "red", 3, 90],
+            ["D", "C", "orange", 4, 30],
+            ["E", "D", "red", 3, 30],
+            ["F", "A", "orange", 4, 60],
+            ["G", "F", "blue", 6, 60],
+            ["H", "G", "orange", 4, 180],
+            ["I", "H", "red", 3, 90],
+            ["J", "I", "orange", 4, 30],
+            ["K", "J", "red", 3, 30],
+            ["L", "G", "orange", 4, 60],
+
+            ["M", "L", "blue", 6, 60],
+            ["N", "J", "blue", 6, 120],
+        ];
+        txtarea.value = JSON.stringify(shapes);
+    }
+
+    /* Octs and Squares */
+    btn = document.getElementById("octandsquares");
+    btn.onclick = function () {
+        var shapes = [
+            ["A", null, "blue", 4, 0],
+            ["B", "A", "purple", 8, 0],
+            ["C", "A", "orange", 8, 90],
+            ["D", "B", "green", 4, 90],
+            ["E", "B", "orange", 4, 0],
+            ["F", "C", "orange", 4, 90]
+        ];
+        txtarea.value = JSON.stringify(shapes);
+    }
 }
 
 function init()
@@ -207,28 +328,4 @@ function init()
     chunk_horizontal_count = 8;
 
     render_chunks(30,30,chunk_horizontal_count, chunk_vertical_count, stage, chunk_data, 0);
-}
-
-function input_to_chunk_generation()
-{
-    var shape_input = JSON.parse(document.getElementById("shape_input").value);
-    var shape_data = [];
-
-    for(var i = 0; i < shape_input.length; i++)
-    {
-        var shape = shape_input[i];
-        shape_data.push(new RegularTile(shape[0],shape[1],shape[2],shape[3],shape[4]))
-    }
-
-    var origin_shape = shape_input[0][0];
-    var horizontal_shape = shape_input[shape_input.length - 2][0];
-    var vertical_shape = shape_input[shape_input.length - 1][0];
-
-    var chunk_data = generate_initial_chunk_data(20, shape_data, origin_shape, horizontal_shape, vertical_shape);
-
-    document.getElementById("chunk_data").value = JSON.stringify(chunk_data);
-
-    var stage = new createjs.Stage("demoCanvas");
-    render_chunks(60,60, 3, 3, stage, chunk_data, 0);
-
 }

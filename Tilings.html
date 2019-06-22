@@ -2,15 +2,21 @@
 <head>
 	<script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
 	<script src="Tilings.js"></script>
+	<link rel="stylesheet" type="text/css" href="Tilings.css">
 
 </head>
 <body onload="init();">
-	<button id="generate">GENERATE GRID</button>
 
-	<button id="squaregrid">Checkerboard</button>
-	<button id="hexgrid">Hex Grid</button>
+	<div>
+		<button id="squaregrid">Checkerboard</button>
+		<button id="triangles">Triangles</button>
+		<button id="hexgrid">Hex Grid</button>
+		<button id="hexgridbordered">Hex Grid With Border</button>
+		<button id="octandsquares">Octagons and Squares</button>
+	</div>
 
-	<textarea id="shape_input" rows="10" cols="60">
+
+	<textarea id="shape_input" class="txtarea" rows="10" cols="60">
 Press the buttons to make the data for premade grids. Edit the data to make your own grids. Press generate afterwards.
 
 The format is a list of lists. Each shape is:
@@ -22,54 +28,24 @@ The format is a list of lists. Each shape is:
 	angle of shape rotation(and the angle it sprouts off from its parent)
 ]
 
-Note: you'll have to specify at least 3 shapes or it won't work, as two are culled for the generation process
+Note: you'll have to specify at least 3 shapes or it won't work, as the last two are culled for the generation process and are only used to
+get the chunk's dimensions
 	</textarea>
 
-	<textarea id="chunk_data" rows="10" cols="30">
+	<textarea id="chunk_data" class="txtarea" rows="10" cols="30">
 Chunk rendering data will be output here. Copy and paste and use it for your own grids
 	</textarea>
 
-	<script>
-		var btn = document.getElementById("generate");
-		btn.onclick = function() {input_to_chunk_generation()};
-	</script>
-
-	<script>
-		var btn = document.getElementById("squaregrid");
-		var txtarea = document.getElementById("shape_input");
-		btn.onclick = function()
-		{
-		    var shapes = [
-		        ["A",null,"blue",4,0],
-				["B","A","purple",4,0],
-				["C","A","orange",4,90],
-				["D","B","green",4,90],
-				["E","B","orange",4,0],
-				["F","C","orange",4,90]
-			];
-			txtarea.value = JSON.stringify(shapes);
-		}
-	</script>
-
-	<script>
-		var btn = document.getElementById("hexgrid");
-		var txtarea = document.getElementById("shape_input");
-		btn.onclick = function()
-		{
-		    var shapes = [
-			["A",null, "blue", 6, 0],
-			["B","A", "orange", 6, 60],
-			["C","B","orange",6,60],
-			["D","B","orange",6,120]
-    		];
-			txtarea.value = JSON.stringify(shapes);
-		}
-	</script>
-
-
+	<div>
+		<button id="generate">GENERATE GRID</button>
+	</div>
 
 	<canvas id="demoCanvas" width="1000" height="1000">
 			alternate content
-		</canvas>
+	</canvas>
+
+	<script>
+		addButtonEvents();
+	</script>
 
 </body></html>

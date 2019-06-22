@@ -1,0 +1,6 @@
+.txtarea
+{
+    resize: none;
+    min-width: 45%;
+    min-height: 500px;
+}
