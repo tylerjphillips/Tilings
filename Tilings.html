@@ -1,6 +1,7 @@
 <html>
 <head>
 	<script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<script src="Tilings.js"></script>
 	<link rel="stylesheet" type="text/css" href="Tilings.css">
 	<title>Polygon Tile Generator</title>
@@ -18,7 +19,6 @@
 		<button id="hexgridbordered">Hex Grid With Border</button>
 		<button id="octandsquares">Octagons and Squares</button>
 	</div>
-
 
 	<textarea id="shape_input" class="txtarea" rows="10" cols="60">
 Press the buttons to make the data for premade grids. Edit the data to make your own grids. Press generate afterwards.
@@ -38,6 +38,17 @@ Note: you'll have to specify at least 3 shapes or it won't work, as the last two
 	<textarea id="chunk_data" class="txtarea" rows="10" cols="30">
 Chunk rendering data will be output here. Copy and use it for your own grids
 	</textarea>
+
+	<form class="range-field">
+		<div id="size_value">Radius: 20</div>
+		<input id="size_slider" type="range" min="5" max="100" value="20" onchange="document.getElementById('size_value').innerText='Radius: ' + this.value"/>
+
+		<div id="horizontal_repeat_value">Horizontal Repeat: 5</div>
+		<input id="horizontal_repeat_slider" type="range" min="1" max="25" value="5" onchange="document.getElementById('horizontal_repeat_value').innerText='Horizontal Repeat: ' + this.value"/>
+
+		<div id="vertical_repeat_value">Vertical Repeat: 3</div>
+		<input id="vertical_repeat_slider" type="range" min="1" max="25" value="3" onchange="document.getElementById('vertical_repeat_value').innerText='Vertical Repeat: ' + this.value"/>
+	</form>
 
 	<div>
 		<button id="generate">GENERATE GRID</button>

@@ -189,6 +189,12 @@ function input_to_chunk_generation()
     var shape_input = JSON.parse(document.getElementById("shape_input").value);
     var shape_data = [];
 
+    var sidelength = parseInt(document.getElementById("size_slider").value);
+
+    // Grab values from sliders for how many chunks to render
+    var horizontal_repeat =  parseInt(document.getElementById('horizontal_repeat_value').innerText.replace(/\D/g,''));
+    var vertical_repeat =  parseInt(document.getElementById('vertical_repeat_value').innerText.replace(/\D/g,''));
+
     // Add all the data to tile objects
     for(var i = 0; i < shape_input.length; i++)
     {
@@ -201,14 +207,14 @@ function input_to_chunk_generation()
     var horizontal_shape = shape_input[shape_input.length - 2][0];
     var vertical_shape = shape_input[shape_input.length - 1][0];
 
-    var chunk_data = generate_initial_chunk_data(20, shape_data, origin_shape, horizontal_shape, vertical_shape);
+    var chunk_data = generate_initial_chunk_data(sidelength, shape_data, origin_shape, horizontal_shape, vertical_shape);
 
     //show the chunk data in the text area
     document.getElementById("chunk_data").value = JSON.stringify(chunk_data, null, 4);
 
     var stage = new createjs.Stage("demoCanvas");
 
-    render_chunks(60,60, 5, 3, stage, chunk_data, 0);
+    render_chunks(60,60, horizontal_repeat, vertical_repeat, stage, chunk_data, 0);
 }
 
 function addButtonEvents() {
